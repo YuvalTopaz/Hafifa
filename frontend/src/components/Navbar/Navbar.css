@@ -1,0 +1,5 @@
+.navbar a.active {
+  font-weight: 600;
+  border-bottom: 2px solid white;
+  padding-bottom: 2px;
+}

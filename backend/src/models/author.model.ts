@@ -2,7 +2,7 @@ import { DataTypes, Model } from "sequelize";
 import { sequelize } from "../config/database";
 
 export class Author extends Model {
-  declare id: number;
+  declare id: string;
 }
 
 Author.init(

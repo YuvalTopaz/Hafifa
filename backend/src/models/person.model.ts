@@ -2,7 +2,7 @@ import { DataTypes, Model } from "sequelize";
 import { sequelize } from "../config/database";
 
 export class Person extends Model {
-  declare id: number;
+  declare id: string;
   declare first_name: string;
   declare last_name: string;
   declare birth_date: Date;
