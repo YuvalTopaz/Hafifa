@@ -3,8 +3,7 @@ import { BookService } from "../services/book.service";
 
 const bookService = new BookService();
 
-export class BookController {
-  async getAll(req: Request, res: Response) {
+export const getAll = async (req: Request, res: Response) => {
   try {
     const books = await bookService.getAllBooks();
     res.json(books);
@@ -14,5 +13,4 @@ export class BookController {
       dbError: error.parent?.message,
     });
   }
-}
-}
+};

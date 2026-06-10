@@ -1,20 +1,20 @@
 import { DataTypes, Model } from "sequelize";
 import { sequelize } from "../config/database";
 
-export class Author extends Model {
-  declare author_id: string;
+export class Employee extends Model {
+  declare employee_id: string;
 }
 
-Author.init(
+Employee.init(
   {
-    author_id: {
+    employee_id: {
       type: DataTypes.STRING,
       primaryKey: true,
     },
   },
   {
     sequelize,
-    tableName: "authors",
+    tableName: "employees",
     timestamps: false,
   }
 );

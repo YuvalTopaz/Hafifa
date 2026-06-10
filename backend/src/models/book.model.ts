@@ -13,8 +13,7 @@ export class Book extends Model {
 Book.init(
   {
     book_id: {
-      type: DataTypes.INTEGER,
-      autoIncrement: true,
+      type: DataTypes.STRING,
       primaryKey: true,
     },
     title: {
@@ -22,26 +21,26 @@ Book.init(
       allowNull: false,
     },
     author_id: {
-      type: DataTypes.INTEGER,
+      type: DataTypes.STRING,
       allowNull: false,
-    },
-    is_borrowed: {
-      type: DataTypes.BOOLEAN,
-      defaultValue: false,
     },
     price: {
       type: DataTypes.DOUBLE,
       allowNull: false,
       defaultValue: 0,
     },
+    is_borrowed: {
+      type: DataTypes.BOOLEAN,
+      defaultValue: false,
+    },
     release_date: {
-      type: DataTypes.DATE,
-      allowNull: false,
+      type: DataTypes.DATEONLY,
+      allowNull: true,
     },
   },
   {
     sequelize,
     tableName: "books",
     timestamps: false,
-  },
+  }
 );

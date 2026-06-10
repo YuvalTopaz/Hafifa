@@ -1,35 +1,37 @@
 import { DataTypes, Model } from "sequelize";
 import { sequelize } from "../config/database";
 
-export class Person extends Model {
+export class Account extends Model {
+  declare account_id: string;
   declare person_id: string;
-  declare first_name: string;
-  declare last_name: string;
-  declare birth_date: Date;
+  declare email: string;
+  declare password: string;
 }
 
-Person.init(
+Account.init(
   {
-    person_id: {
+    account_id: {
       type: DataTypes.STRING,
       primaryKey: true,
     },
-    first_name: {
+    person_id: {
+      type: DataTypes.STRING,
+      allowNull: false,
+      unique: true,
+    },
+    email: {
       type: DataTypes.TEXT,
       allowNull: false,
+      unique: true,
     },
-    last_name: {
+    password: {
       type: DataTypes.TEXT,
-      allowNull: false,
-    },
-    birth_date: {
-      type: DataTypes.DATE,
       allowNull: false,
     },
   },
   {
     sequelize,
-    tableName: "person",
+    tableName: "accounts",
     timestamps: false,
   }
 );
