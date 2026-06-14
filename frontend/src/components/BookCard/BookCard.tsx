@@ -4,6 +4,7 @@ import { useAuth } from "../../context/useAuth";
 type BookCardProps = {
   title: string;
   price: number;
+  isBorrowed: boolean;
   onBorrow?: () => void;
   onDelete?: () => void;
 };
@@ -11,10 +12,11 @@ type BookCardProps = {
 export default function BookCard({
   title,
   price,
+  isBorrowed,
   onBorrow,
   onDelete,
 }: BookCardProps) {
-    const { isEmployee } = useAuth();
+  const { isEmployee, isActiveCustomer } = useAuth();
 
   return (
     <div className="card h-100 shadow-sm">
@@ -22,7 +24,7 @@ export default function BookCard({
         <div className="d-flex justify-content-between align-items-start">
           <h5 className="card-title fw-bold mb-0">{title}</h5>
 
-{isEmployee && (
+          {isEmployee && (
             <button
               className="btn btn-link p-0 text-secondary"
               onClick={onDelete}
@@ -35,10 +37,15 @@ export default function BookCard({
         <p className="mt-4 mb-4">price: {price} $</p>
 
         <hr />
-
-        <button className="btn btn-primary btn-sm" onClick={onBorrow}>
-          Borrow Book
-        </button>
+        {isActiveCustomer && (
+          <button
+            className="btn btn-primary btn-sm"
+            onClick={onBorrow}
+            disabled={isBorrowed}
+          >
+            {isBorrowed ? "Already Borrowed" : "Borrow Book"}
+          </button>
+        )}
       </div>
     </div>
   );

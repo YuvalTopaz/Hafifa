@@ -12,8 +12,13 @@ export const findEmployeeByPersonId = async (personId: string) => {
   return Employee.findByPk(personId);
 };
 
-export const findCustomerByPersonId = async (personId: string) => {
-  return Customer.findByPk(personId);
+export const findActiveCustomerByPersonId = async (personId: string) => {
+  return Customer.findOne({
+    where: {
+      customer_id: personId,
+      is_active: true,
+    },
+  });
 };
 
 export const createCustomerUser = async (data: {
@@ -46,13 +51,14 @@ export const createCustomerUser = async (data: {
       { transaction }
     );
 
-    await Customer.create(
+    const customer = await Customer.create(
       {
         customer_id: data.personId,
+        is_active: true,
       },
       { transaction }
     );
 
-    return { person, account };
+    return { person, account, customer };
   });
 };

@@ -1,0 +1,22 @@
+.home-with-sidebar {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 300px;
+  gap: 24px;
+  align-items: start;
+}
+
+.top-books-sidebar {
+  position: sticky;
+  top: 72px;
+}
+
+@media (max-width: 1199px) {
+  .home-with-sidebar {
+    display: block;
+  }
+
+  .top-books-sidebar {
+    margin-top: 24px;
+    position: static;
+  }
+}

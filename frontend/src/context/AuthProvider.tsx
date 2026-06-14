@@ -28,10 +28,22 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setUser(null);
   };
 
-  const isEmployee = user?.role === "employee";
+  const isEmployee = user?.isEmployee ?? false;
+  const isCustomer = user?.isCustomer ?? false;
+  const isActiveCustomer = user?.isActiveCustomer ?? false;
 
   return (
-    <AuthContext.Provider value={{ user, token, isEmployee, login, logout }}>
+    <AuthContext.Provider
+      value={{
+        user,
+        token,
+        isEmployee,
+        isCustomer,
+        isActiveCustomer,
+        login,
+        logout,
+      }}
+    >
       {children}
     </AuthContext.Provider>
   );

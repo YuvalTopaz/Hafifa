@@ -4,7 +4,7 @@ import crypto from "crypto";
 import {
   findAccountByEmail,
   findEmployeeByPersonId,
-  findCustomerByPersonId,
+  findActiveCustomerByPersonId,
   createCustomerUser,
 } from "../repositories/auth.repository";
 
@@ -26,22 +26,22 @@ export const loginService = async (email: string, password: string) => {
   }
 
   const employee = await findEmployeeByPersonId(account.person_id);
-  const customer = await findCustomerByPersonId(account.person_id);
+  const activeCustomer = await findActiveCustomerByPersonId(account.person_id);
 
-  let role: "employee" | "customer";
+  const isEmployee = !!employee;
+  const isCustomer = !!activeCustomer;
+  const isActiveCustomer = !!activeCustomer;
 
-  if (employee) {
-    role = "employee";
-  } else if (customer) {
-    role = "customer";
-  } else {
+  if (!isEmployee && !isCustomer) {
     throw new Error("NO_VALID_ROLE");
   }
 
   const token = jwt.sign(
     {
       person_id: account.person_id,
-      role,
+      isEmployee,
+      isCustomer,
+      isActiveCustomer,
     },
     process.env.JWT_SECRET as string,
     { expiresIn: "1h" }
@@ -52,7 +52,9 @@ export const loginService = async (email: string, password: string) => {
     user: {
       person_id: account.person_id,
       email: account.email,
-      role,
+      isEmployee,
+      isCustomer,
+      isActiveCustomer,
     },
   };
 };

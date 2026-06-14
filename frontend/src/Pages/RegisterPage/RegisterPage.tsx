@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { registerCustomer } from "../../api/api";
+import { useRegisterCustomer } from "../../api/hooks";
 
 export default function RegisterPage() {
   const [firstName, setFirstName] = useState("");
@@ -8,14 +8,16 @@ export default function RegisterPage() {
   const [birthDate, setBirthDate] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [isLoading, setIsLoading] = useState(false);
+
+  const { register, isLoading } = useRegisterCustomer();
+
   const navigate = useNavigate();
+
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
-    setIsLoading(true);
 
     try {
-      await registerCustomer({
+      await register({
         firstName,
         lastName,
         birthDate,
@@ -27,8 +29,6 @@ export default function RegisterPage() {
     } catch (error) {
       console.error(error);
       alert("Failed to create account");
-    } finally {
-      setIsLoading(false);
     }
   }
 
@@ -45,6 +45,7 @@ export default function RegisterPage() {
             <label htmlFor="firstName" className="form-label">
               First Name
             </label>
+
             <input
               id="firstName"
               type="text"
@@ -59,6 +60,7 @@ export default function RegisterPage() {
             <label htmlFor="lastName" className="form-label">
               Last Name
             </label>
+
             <input
               id="lastName"
               type="text"
@@ -73,6 +75,7 @@ export default function RegisterPage() {
             <label htmlFor="birthDate" className="form-label">
               Birth Date
             </label>
+
             <input
               id="birthDate"
               type="date"
@@ -87,6 +90,7 @@ export default function RegisterPage() {
             <label htmlFor="email" className="form-label">
               Email
             </label>
+
             <input
               id="email"
               type="email"
@@ -101,6 +105,7 @@ export default function RegisterPage() {
             <label htmlFor="password" className="form-label">
               Password
             </label>
+
             <input
               id="password"
               type="password"
@@ -121,6 +126,7 @@ export default function RegisterPage() {
 
           <div className="text-center mt-3">
             <span className="text-muted">Already have an account? </span>
+
             <Link to="/" className="text-decoration-none">
               Login
             </Link>

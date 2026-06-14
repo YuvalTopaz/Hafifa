@@ -1,8 +1,22 @@
 import { useState } from "react";
-import { createEmployee } from "../../api/api";
+import { useCreateEmployee, useCustomers } from "../../api/hooks";
+import CustomerCard from "../../components/CustomerCard";
+import CustomerBorrowHistory from "../../components/CustomerBorrowHistory";
 
 export default function CustomersPage() {
+  const { addEmployee, isLoading } = useCreateEmployee();
+
+  const {
+    customers,
+    isLoading: isCustomersLoading,
+    error,
+    removeCustomer,
+  } = useCustomers();
+
   const [showForm, setShowForm] = useState(false);
+  const [selectedCustomerId, setSelectedCustomerId] = useState<string | null>(
+    null,
+  );
 
   const [form, setForm] = useState({
     firstName: "",
@@ -16,7 +30,7 @@ export default function CustomersPage() {
     e.preventDefault();
 
     try {
-      await createEmployee(form);
+      await addEmployee(form);
 
       alert("Employee created successfully");
 
@@ -29,9 +43,20 @@ export default function CustomersPage() {
       });
 
       setShowForm(false);
-    } catch (error) {
-      console.error(error);
+    } catch {
       alert("Failed to create employee");
+    }
+  }
+
+  async function handleDelete(customerId: string) {
+    try {
+      await removeCustomer(customerId);
+
+      if (selectedCustomerId === customerId) {
+        setSelectedCustomerId(null);
+      }
+    } catch {
+      alert("Failed to delete customer");
     }
   }
 
@@ -49,7 +74,7 @@ export default function CustomersPage() {
       </div>
 
       {showForm && (
-        <form onSubmit={handleSubmit} className="card p-4 shadow-sm">
+        <form onSubmit={handleSubmit} className="card p-4 shadow-sm mb-4">
           <h2 className="mb-4">Create Employee</h2>
 
           <div className="mb-3">
@@ -95,9 +120,7 @@ export default function CustomersPage() {
               type="email"
               className="form-control"
               value={form.email}
-              onChange={(e) =>
-                setForm({ ...form, email: e.target.value })
-              }
+              onChange={(e) => setForm({ ...form, email: e.target.value })}
               required
             />
           </div>
@@ -115,11 +138,49 @@ export default function CustomersPage() {
             />
           </div>
 
-          <button className="btn btn-success">
-            Save Employee
+          <button
+            type="submit"
+            className="btn btn-success"
+            disabled={isLoading}
+          >
+            {isLoading ? "Saving..." : "Save Employee"}
           </button>
         </form>
       )}
+
+      {selectedCustomerId && (
+        <CustomerBorrowHistory
+          customerId={selectedCustomerId}
+          onClose={() => setSelectedCustomerId(null)}
+        />
+      )}
+
+      <section>
+        <h2 className="mb-3">All Customers</h2>
+
+        {isCustomersLoading && <p>Loading customers...</p>}
+
+        {error && <p className="text-danger">{error}</p>}
+
+        {!isCustomersLoading && customers.length === 0 ? (
+          <p className="text-muted">No customers found.</p>
+        ) : (
+          <div className="row g-3">
+            {customers.map((customer) => (
+              <div
+                key={customer.customer_id}
+                className="col-12 col-md-6 col-lg-4"
+              >
+                <CustomerCard
+                  customer={customer}
+                  onDelete={handleDelete}
+                  onViewHistory={setSelectedCustomerId}
+                />
+              </div>
+            ))}
+          </div>
+        )}
+      </section>
     </main>
   );
 }

@@ -8,13 +8,17 @@ export default function ProtectedRoute({
 }: {
   allowedRoles: Role[];
 }) {
-  const { user } = useAuth();
+  const { user, isEmployee, isActiveCustomer } = useAuth();
 
   if (!user) {
     return <Navigate to="/" replace />;
   }
 
-  if (!allowedRoles.includes(user.role)) {
+  const isAllowed =
+    (allowedRoles.includes("employee") && isEmployee) ||
+    (allowedRoles.includes("customer") && isActiveCustomer);
+
+  if (!isAllowed) {
     return <Navigate to="/app" replace />;
   }
 

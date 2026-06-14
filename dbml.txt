@@ -1,0 +1,60 @@
+Table person {
+  person_id uuid [primary key]
+  first_name text [not null]
+  last_name text [not null]
+  birth_date date [not null]
+}
+
+Table accounts {
+  account_id uuid [primary key]
+  person_id uuid [not null, unique]
+  email text [not null, unique]
+  password text [not null]
+}
+
+Table authors {
+  author_id uuid [primary key]
+}
+
+Table customers {
+  customer_id uuid [primary key]
+  is_active boolean [not null, default: true]
+}
+
+Table employees {
+  employee_id uuid [primary key]
+}
+
+Table books {
+  book_id uuid [primary key]
+  title text [not null]
+  author_id uuid [not null]
+  price decimal(10,2) [not null, default: 0]
+  is_borrowed boolean [not null, default: false]
+  is_active boolean [not null, default: true]
+  release_date date
+}
+
+Table book_borrows {
+  borrow_id bigint [primary key, increment]
+  borrower_id uuid [not null]
+  book_id uuid [not null]
+  borrow_date timestamp [not null]
+  return_date timestamp
+
+  indexes {
+    borrower_id
+    book_id
+  }
+}
+
+Ref: accounts.person_id - person.person_id
+
+Ref: authors.author_id - person.person_id
+Ref: customers.customer_id - person.person_id
+Ref: employees.employee_id - person.person_id
+
+Ref: books.author_id > authors.author_id
+
+Ref: book_borrows.borrower_id > customers.customer_id
+Ref: book_borrows.book_id > books.book_id

@@ -1,3 +1,4 @@
+import { randomUUID } from "crypto";
 import { DataTypes, Model } from "sequelize";
 import { sequelize } from "../config/database";
 
@@ -13,6 +14,8 @@ Person.init(
     person_id: {
       type: DataTypes.STRING,
       primaryKey: true,
+      allowNull: false,
+      defaultValue: () => randomUUID(),
     },
     first_name: {
       type: DataTypes.TEXT,
