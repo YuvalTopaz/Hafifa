@@ -7,3 +7,4 @@ export * from "./employee.model";
 export * from "./book.model";
 export * from "./bookBorrow.model";
 export * from "./account.model";
+export * from "./customerWallet.model"

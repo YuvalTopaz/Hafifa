@@ -5,6 +5,7 @@ import { Customer } from "./customer.model";
 import { Employee } from "./employee.model";
 import { Book } from "./book.model";
 import { BookBorrow } from "./bookBorrow.model";
+import { CustomerWallet } from "./customerWallet.model";
 
 Account.belongsTo(Person, {
   foreignKey: "person_id",
@@ -62,4 +63,12 @@ Book.hasMany(BookBorrow, {
   foreignKey: "book_id",
 });
 
-export { Person, Account, Author, Customer, Employee, Book, BookBorrow };
+Customer.hasOne(CustomerWallet, {
+  foreignKey: "customer_id",
+});
+
+CustomerWallet.belongsTo(Customer, {
+  foreignKey: "customer_id",
+});
+
+export { Person, Account, Author, Customer, Employee, Book, BookBorrow, CustomerWallet };

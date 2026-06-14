@@ -1,8 +1,12 @@
 import { useState } from "react";
-import { useAuthors } from "../../api/hooks";
+import { useAuthors, useAuthorPaymentReport } from "../../api/hooks";
+import { AuthorCard } from "../../components/AuthorCard";
+import { AuthorPaymentReportModal } from "../../components/AuthorPaymentReportModal";
 
 export default function PublishersPage() {
   const { authors, isLoading, error, addAuthor, removeAuthor } = useAuthors();
+  const { report, isLoading: isReportLoading, loadReport, clearReport } =
+    useAuthorPaymentReport();
 
   const [showModal, setShowModal] = useState(false);
 
@@ -28,12 +32,8 @@ export default function PublishersPage() {
       setFirstName("");
       setLastName("");
       setBirthDate("");
-    } catch (err: any) {
-      if (err.response?.status === 409) {
-        alert("Author already exists");
-      } else {
-        alert(err.response?.data?.message || "Failed to create author");
-      }
+    } catch {
+      alert("Failed to create author");
     } finally {
       setIsSubmitting(false);
     }
@@ -44,6 +44,14 @@ export default function PublishersPage() {
       await removeAuthor(authorId);
     } catch {
       alert("Failed to delete author");
+    }
+  }
+
+  async function handleReport(authorId: string) {
+    try {
+      await loadReport(authorId);
+    } catch {
+      alert("Failed to load payment report");
     }
   }
 
@@ -66,22 +74,12 @@ export default function PublishersPage() {
       ) : (
         <div className="row g-3">
           {authors.map((author) => (
-            <div key={author.author_id} className="col-12 col-md-6 col-lg-4">
-              <div className="card p-3 shadow-sm">
-                <h5>
-                  {author.first_name} {author.last_name}
-                </h5>
-
-                <p className="text-muted">Birth date: {author.birth_date}</p>
-
-                <button
-                  className="btn btn-outline-danger"
-                  onClick={() => handleDelete(author.author_id)}
-                >
-                  Delete Author
-                </button>
-              </div>
-            </div>
+            <AuthorCard
+              key={author.author_id}
+              author={author}
+              onDelete={handleDelete}
+              onReport={handleReport}
+            />
           ))}
         </div>
       )}
@@ -152,6 +150,14 @@ export default function PublishersPage() {
 
           <div className="modal-backdrop fade show"></div>
         </>
+      )}
+
+      {(report || isReportLoading) && (
+        <AuthorPaymentReportModal
+          report={report}
+          isLoading={isReportLoading}
+          onClose={clearReport}
+        />
       )}
     </main>
   );

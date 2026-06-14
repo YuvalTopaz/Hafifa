@@ -18,10 +18,7 @@ type CustomerParams = {
   customerId: string;
 };
 
-export const borrowBook = async (
-  req: Request<BorrowParams>,
-  res: Response,
-) => {
+export const borrowBook = async (req: Request<BorrowParams>, res: Response) => {
   try {
     const { bookId } = req.params;
     const { customerId } = req.body;
@@ -56,10 +53,7 @@ export const borrowBook = async (
   }
 };
 
-export const returnBook = async (
-  req: Request<ReturnParams>,
-  res: Response,
-) => {
+export const returnBook = async (req: Request<ReturnParams>, res: Response) => {
   try {
     const borrowId = Number(req.params.borrowId);
 
@@ -68,21 +62,45 @@ export const returnBook = async (
     return res.json(result);
   } catch (error) {
     if (error instanceof Error) {
-      if (error.message === "BORROW_NOT_FOUND") {
-        return res.status(404).json({
-          message: "Borrow record not found",
+      if (error.message === "CUSTOMER_NOT_ACTIVE") {
+        return res.status(403).json({
+          message: "Customer is not active",
         });
       }
 
-      if (error.message === "ALREADY_RETURNED") {
+      if (error.message === "BOOK_NOT_FOUND") {
+        return res.status(404).json({
+          message: "Book not found",
+        });
+      }
+
+      if (error.message === "BOOK_NOT_ACTIVE") {
         return res.status(409).json({
-          message: "Book already returned",
+          message: "Book is not active",
+        });
+      }
+
+      if (error.message === "BOOK_ALREADY_BORROWED") {
+        return res.status(409).json({
+          message: "Book is already borrowed",
+        });
+      }
+
+      if (error.message === "WALLET_NOT_FOUND") {
+        return res.status(404).json({
+          message: "Customer wallet not found",
+        });
+      }
+
+      if (error.message === "INSUFFICIENT_FUNDS") {
+        return res.status(400).json({
+          message: "Not enough balance to borrow this book",
         });
       }
     }
 
     return res.status(500).json({
-      message: "Failed to return book",
+      message: "Failed to borrow book",
     });
   }
 };

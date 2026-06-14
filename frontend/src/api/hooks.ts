@@ -17,7 +17,10 @@ import {
   registerCustomer,
   returnBook,
   getTopBorrowedBooks,
-} from "../api";
+  depositMoney,
+  getWallet,
+  getAuthorPaymentReport,
+} from "./api";
 import type {
   Author,
   Book,
@@ -28,7 +31,9 @@ import type {
   CreateCustomerDto,
   CreateEmployeeDto,
   TopBorrowedBook,
-} from "../../Types";
+  CustomerWallet,
+  AuthorPaymentReport,
+} from "../Types";
 
 export function useBooks() {
   const [books, setBooks] = useState<Book[]>([]);
@@ -523,4 +528,141 @@ export function useTopBorrowedBooks() {
   }, []);
 
   return { books, isLoading, error, refreshTopBooks };
+}
+
+export function useWallet(customerId?: string) {
+  const [wallet, setWallet] = useState<CustomerWallet | null>(null);
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  async function refreshWallet() {
+    if (!customerId) return;
+
+    try {
+      setIsLoading(true);
+      setError(null);
+
+      const data = await getWallet(customerId);
+
+      setWallet({
+        ...data,
+        balance: Number(data.balance),
+      });
+    } catch {
+      setError("Failed to load wallet");
+    } finally {
+      setIsLoading(false);
+    }
+  }
+
+  useEffect(() => {
+    if (!customerId) return;
+
+    let ignore = false;
+
+    async function load() {
+      try {
+        setIsLoading(true);
+        setError(null);
+
+        const data = await getWallet(customerId!);
+
+        if (!ignore) {
+          setWallet({
+            ...data,
+            balance: Number(data.balance),
+          });
+        }
+      } catch {
+        if (!ignore) {
+          setError("Failed to load wallet");
+        }
+      } finally {
+        if (!ignore) {
+          setIsLoading(false);
+        }
+      }
+    }
+
+    void load();
+
+    return () => {
+      ignore = true;
+    };
+  }, [customerId]);
+
+  return {
+    wallet: customerId ? wallet : null,
+    isLoading,
+    error,
+    refreshWallet,
+  };
+}
+
+export function useWalletActions() {
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  async function deposit(customerId: string, amount: number) {
+    try {
+      setIsLoading(true);
+      setError(null);
+
+      return await depositMoney(customerId, amount);
+    } catch {
+      setError("Failed to deposit money");
+      throw new Error("Failed to deposit money");
+    } finally {
+      setIsLoading(false);
+    }
+  }
+
+  return {
+    deposit,
+    isLoading,
+    error,
+  };
+}
+
+export function useAuthorPaymentReport() {
+  const [report, setReport] = useState<AuthorPaymentReport | null>(null);
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  async function loadReport(authorId: string) {
+    try {
+      setIsLoading(true);
+      setError(null);
+
+      const data = await getAuthorPaymentReport(authorId);
+
+      setReport({
+        ...data,
+        total_payment: Number(data.total_payment),
+        books: data.books.map((book) => ({
+          ...book,
+          price: Number(book.price),
+          total: Number(book.total),
+        })),
+      });
+    } catch {
+      setError("Failed to load payment report");
+      throw new Error("Failed to load payment report");
+    } finally {
+      setIsLoading(false);
+    }
+  }
+
+  function clearReport() {
+    setReport(null);
+    setError(null);
+  }
+
+  return {
+    report,
+    isLoading,
+    error,
+    loadReport,
+    clearReport,
+  };
 }

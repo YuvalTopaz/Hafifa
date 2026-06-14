@@ -1,11 +1,13 @@
-import { NavLink } from "react-router-dom";
-import { useNavigate } from "react-router-dom";
+import { NavLink, useNavigate } from "react-router-dom";
 import "./Navbar.css";
-import { useAuth } from "../../context/useAuth";
+import { useAuth } from "../../context/AuthContext/useAuth";
+import { useWalletContext } from "../../context/WalletContext/useWalletContext";
 
 export default function Navbar() {
   const navigate = useNavigate();
-  const { isEmployee, logout } = useAuth();
+
+  const { user, isEmployee, isCustomer, logout } = useAuth();
+  const { wallet } = useWalletContext();
 
   return (
     <nav
@@ -49,6 +51,7 @@ export default function Navbar() {
           >
             Personal
           </NavLink>
+
           {isEmployee && (
             <>
               <NavLink
@@ -66,6 +69,21 @@ export default function Navbar() {
               </NavLink>
             </>
           )}
+        </div>
+
+        <div className="text-white d-flex align-items-center gap-3">
+          {isCustomer && wallet && (
+            <span>Balance: ₪{wallet.balance.toFixed(2)}</span>
+          )}
+
+          <span>
+            Logged in as:{" "}
+            <strong>
+              {user?.first_name && user?.last_name
+                ? `${user.first_name} ${user.last_name}`
+                : user?.email}
+            </strong>
+          </span>
         </div>
       </div>
     </nav>

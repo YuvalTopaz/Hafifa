@@ -1,6 +1,7 @@
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 import crypto from "crypto";
+import { Person } from "../models";
 import {
   findAccountByEmail,
   findEmployeeByPersonId,
@@ -36,6 +37,12 @@ export const loginService = async (email: string, password: string) => {
     throw new Error("NO_VALID_ROLE");
   }
 
+  const person = account.get("Person") as Person | null;
+
+  if (!person) {
+    throw new Error("PERSON_NOT_FOUND");
+  }
+
   const token = jwt.sign(
     {
       person_id: account.person_id,
@@ -44,7 +51,7 @@ export const loginService = async (email: string, password: string) => {
       isActiveCustomer,
     },
     process.env.JWT_SECRET as string,
-    { expiresIn: "1h" }
+    { expiresIn: "1h" },
   );
 
   return {
@@ -52,6 +59,9 @@ export const loginService = async (email: string, password: string) => {
     user: {
       person_id: account.person_id,
       email: account.email,
+      first_name: person.first_name,
+      last_name: person.last_name,
+      birth_date: person.birth_date,
       isEmployee,
       isCustomer,
       isActiveCustomer,

@@ -8,9 +8,9 @@ import {
 import BookCard from "../../components/BookCard";
 import TopBorrowedBooksPanel from "../../components/TopBorrowedBooksPanel";
 import type { Book } from "../../Types";
-import { useAuth } from "../../context/useAuth";
-import "./HomePage.css"
-
+import { useAuth } from "../../context/AuthContext/useAuth";
+import { useWalletContext } from "../../context/WalletContext/useWalletContext";
+import "./HomePage.css";
 
 export default function HomePage() {
   const { books, isLoading, error, refreshBooks, removeBook, addBook } =
@@ -20,7 +20,8 @@ export default function HomePage() {
 
   const { authors } = useAuthors();
   const { borrow } = useBorrowBook();
-  const { isEmployee, user } = useAuth();
+  const { isEmployee, isCustomer, user } = useAuth();
+  const { wallet, refreshWallet } = useWalletContext();
 
   async function handleBorrow(bookId: string) {
     if (!user) return;
@@ -29,6 +30,7 @@ export default function HomePage() {
       await borrow(bookId, user.person_id);
       await refreshBooks();
       await refreshTopBooks();
+      await refreshWallet();
     } catch {
       alert("Failed to borrow book");
     }
@@ -45,40 +47,47 @@ export default function HomePage() {
   }
 
   return (
-  <>
-    {isEmployee && (
-      <div className="container mt-4">
-        <CatalogHeader authors={authors} onAddBook={addBook} />
-      </div>
-    )}
-
-    <div className="container mt-4">
-      <div className={isEmployee ? "home-with-sidebar" : ""}>
-        <div>
-          {isLoading ? "Loading..." : error ? <div>{error}</div> : null}
-
-          <div className="row justify-content-start g-3">
-            {books.map((book: Book) => (
-              <div key={book.book_id} className="col-12 col-md-6 col-lg-4">
-                <BookCard
-                  title={book.title}
-                  price={book.price}
-                  isBorrowed={book.is_borrowed}
-                  onBorrow={() => handleBorrow(book.book_id)}
-                  onDelete={() => handleDelete(book.book_id)}
-                />
-              </div>
-            ))}
-          </div>
+    <>
+      {isEmployee && (
+        <div className="container mt-4">
+          <CatalogHeader authors={authors} onAddBook={addBook} />
         </div>
+      )}
 
-        {isEmployee && (
-          <aside className="top-books-sidebar">
-            <TopBorrowedBooksPanel books={topBooks} />
-          </aside>
-        )}
+      <div className="container mt-4">
+        <div className={isEmployee ? "home-with-sidebar" : ""}>
+          <div>
+            {isLoading ? "Loading..." : error ? <div>{error}</div> : null}
+
+            <div className="row justify-content-start g-3">
+              {books.map((book: Book) => (
+                <div key={book.book_id} className="col-12 col-md-6 col-lg-4">
+                  <BookCard
+                    title={book.title}
+                    price={book.price}
+                    isBorrowed={book.is_borrowed}
+                    canAfford={
+                      isCustomer
+                        ? wallet
+                          ? wallet.balance >= Number(book.price)
+                          : false
+                        : true
+                    }
+                    onBorrow={() => handleBorrow(book.book_id)}
+                    onDelete={() => handleDelete(book.book_id)}
+                  />
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {isEmployee && (
+            <aside className="top-books-sidebar">
+              <TopBorrowedBooksPanel books={topBooks} />
+            </aside>
+          )}
+        </div>
       </div>
-    </div>
-  </>
-);
+    </>
+  );
 }

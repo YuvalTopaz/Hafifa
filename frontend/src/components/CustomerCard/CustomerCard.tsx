@@ -4,12 +4,14 @@ type CustomerCardProps = {
   customer: Customer;
   onDelete: (customerId: string) => void;
   onViewHistory: (customerId: string) => void;
+  onDeposit: (customerId: string) => void;
 };
 
 export default function CustomerCard({
   customer,
   onDelete,
   onViewHistory,
+  onDeposit,
 }: CustomerCardProps) {
   return (
     <div className="card p-3 shadow-sm h-100">
@@ -21,24 +23,31 @@ export default function CustomerCard({
         Birth date: {customer.birth_date ?? "Unknown"}
       </p>
 
-      <p className="text-muted mb-3">
-        Email: {customer.email ?? "Unknown"}
-      </p>
+      <p className="text-muted mb-3">Email: {customer.email ?? "Unknown"}</p>
 
       <div className="d-flex gap-2 mt-auto">
-        <button
-          className="btn btn-outline-primary"
-          onClick={() => onViewHistory(customer.customer_id)}
-        >
-          View History
-        </button>
+        <div className="d-flex gap-2 mt-auto flex-wrap">
+          <button
+            className="btn btn-outline-primary"
+            onClick={() => onViewHistory(customer.customer_id)}
+          >
+            View History
+          </button>
 
-        <button
-          className="btn btn-outline-danger"
-          onClick={() => onDelete(customer.customer_id)}
-        >
-          Delete
-        </button>
+          <button
+            className="btn btn-outline-success"
+            onClick={() => onDeposit(customer.customer_id)}
+          >
+            Deposit
+          </button>
+
+          <button
+            className="btn btn-outline-danger"
+            onClick={() => onDelete(customer.customer_id)}
+          >
+            Delete
+          </button>
+        </div>
       </div>
     </div>
   );

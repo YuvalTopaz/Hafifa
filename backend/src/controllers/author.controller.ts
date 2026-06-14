@@ -3,6 +3,7 @@ import {
   createAuthorService,
   getAllAuthorsService,
   deleteAuthorService,
+  getAuthorPaymentReportService,
 } from "../services/author.service";
 
 export const create = async (req: Request, res: Response) => {
@@ -11,6 +12,7 @@ export const create = async (req: Request, res: Response) => {
     return res.status(201).json(author);
   } catch (error: any) {
     console.error("Error creating author:", error);
+
     if (error.message === "Missing author details") {
       return res.status(400).json({ message: error.message });
     }
@@ -45,5 +47,21 @@ export const deleteAuthor = async (req: Request, res: Response) => {
     }
 
     return res.status(500).json({ message: "Failed to delete author" });
+  }
+};
+
+export const getPaymentReport = async (req: Request, res: Response) => {
+  try {
+    const report = await getAuthorPaymentReportService(req.params.id as string);
+    return res.json(report);
+  } catch (error: any) {
+    if (error.message === "Author not found") {
+      return res.status(404).json({ message: error.message });
+    }
+
+    return res.status(500).json({
+      message: "Failed to load payment report",
+      dbError: error.parent?.message,
+    });
   }
 };

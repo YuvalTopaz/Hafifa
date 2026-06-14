@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useLogin } from "../../api/hooks";
 import { useNavigate } from "react-router-dom";
-import { useAuth } from "../../context/useAuth";
+import { useAuth } from "../../context/AuthContext/useAuth";
 import { Link } from "react-router-dom";
 
 export default function LoginPage() {

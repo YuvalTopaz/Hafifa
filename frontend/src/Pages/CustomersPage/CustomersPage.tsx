@@ -1,10 +1,15 @@
 import { useState } from "react";
-import { useCreateEmployee, useCustomers } from "../../api/hooks";
+import {
+  useCreateEmployee,
+  useCustomers,
+  useWalletActions,
+} from "../../api/hooks";
 import CustomerCard from "../../components/CustomerCard";
 import CustomerBorrowHistory from "../../components/CustomerBorrowHistory";
 
 export default function CustomersPage() {
   const { addEmployee, isLoading } = useCreateEmployee();
+  const { deposit, isLoading: isDepositLoading } = useWalletActions();
 
   const {
     customers,
@@ -57,6 +62,26 @@ export default function CustomersPage() {
       }
     } catch {
       alert("Failed to delete customer");
+    }
+  }
+
+  async function handleDeposit(customerId: string) {
+    const amountInput = prompt("Enter amount to deposit:");
+
+    if (!amountInput) return;
+
+    const amount = Number(amountInput);
+
+    if (Number.isNaN(amount) || amount <= 0) {
+      alert("Amount must be greater than 0");
+      return;
+    }
+
+    try {
+      await deposit(customerId, amount);
+      alert("Money deposited successfully");
+    } catch {
+      alert("Failed to deposit money");
     }
   }
 
@@ -158,6 +183,10 @@ export default function CustomersPage() {
       <section>
         <h2 className="mb-3">All Customers</h2>
 
+        {isDepositLoading && (
+          <p className="text-muted">Depositing money...</p>
+        )}
+
         {isCustomersLoading && <p>Loading customers...</p>}
 
         {error && <p className="text-danger">{error}</p>}
@@ -175,6 +204,7 @@ export default function CustomersPage() {
                   customer={customer}
                   onDelete={handleDelete}
                   onViewHistory={setSelectedCustomerId}
+                  onDeposit={handleDeposit}
                 />
               </div>
             ))}

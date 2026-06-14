@@ -5,8 +5,9 @@ import authRouter from "./routers/auth.router";
 import employeeRouter from "./routers/employee.router";
 import customerRouter from "./routers/customer.router";
 import borrowRouter from "./routers/borrow.router";
-import "./models";
 import authorRouter from "./routers/author.router";
+import walletRouter from "./routers/wallet.router"
+import "./models";
 
 const app = express();
 
@@ -20,5 +21,6 @@ app.use("/employees", employeeRouter);
 app.use("/customers", customerRouter);
 app.use("/borrows", borrowRouter);
 app.use("/authors", authorRouter);
+app.use("/wallets", walletRouter)
 
 export default app;

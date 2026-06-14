@@ -1,4 +1,4 @@
-import { Book, BookBorrow, Customer } from "../models";
+import { Book, BookBorrow, Customer, CustomerWallet } from "../models";
 import { sequelize } from "../config/database";
 
 export const borrowBookRepository = async (
@@ -27,9 +27,36 @@ export const borrowBookRepository = async (
       throw new Error("BOOK_NOT_FOUND");
     }
 
+    if (!book.is_active) {
+      throw new Error("BOOK_NOT_ACTIVE");
+    }
+
     if (book.is_borrowed) {
       throw new Error("BOOK_ALREADY_BORROWED");
     }
+
+    const wallet = await CustomerWallet.findByPk(customerId, {
+      transaction,
+      lock: transaction.LOCK.UPDATE,
+    });
+
+    if (!wallet) {
+      throw new Error("WALLET_NOT_FOUND");
+    }
+
+    const bookPrice = Number(book.price);
+    const currentBalance = Number(wallet.balance);
+
+    if (currentBalance < bookPrice) {
+      throw new Error("INSUFFICIENT_FUNDS");
+    }
+
+    await wallet.update(
+      {
+        balance: currentBalance - bookPrice,
+      },
+      { transaction },
+    );
 
     const borrow = await BookBorrow.create(
       {

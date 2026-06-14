@@ -27,6 +27,12 @@ export const login = async (req: Request, res: Response) => {
           message: "User has no valid active role",
         });
       }
+
+      if (error.message === "PERSON_NOT_FOUND") {
+        return res.status(500).json({
+          message: "Account is missing person details",
+        });
+      }
     }
 
     return res.status(500).json({

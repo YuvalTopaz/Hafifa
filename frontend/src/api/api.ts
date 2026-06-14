@@ -1,8 +1,5 @@
 import axios from "axios";
-import type { Book, BorrowedBook, CreateEmployeeDto, Customer } from "../Types";
-import type { CreateBookDto } from "../Types";
-import type { CreateCustomerDto } from "../Types";
-import type { Author, CreateAuthorDto, TopBorrowedBook } from "../Types";
+import type { Book, BorrowedBook, CreateEmployeeDto, Customer, CustomerWallet, CreateBookDto, CreateCustomerDto, Author, CreateAuthorDto, TopBorrowedBook, AuthorPaymentReport } from "../Types";
 
 const api = axios.create({
   baseURL: import.meta.env.VITE_API_URL,
@@ -96,6 +93,14 @@ export const getAuthors = async (): Promise<Author[]> => {
   return response.data;
 };
 
+export async function getAuthorPaymentReport(authorId: string) {
+  const response = await api.get<AuthorPaymentReport>(
+    `/authors/${authorId}/payment-report`
+  );
+
+  return response.data;
+}
+
 export const deleteAuthor = async (id: string): Promise<void> => {
   await api.delete(`/authors/${id}`);
 };
@@ -108,3 +113,21 @@ export async function getAllCustomers(): Promise<Customer[]> {
 export async function deleteCustomer(customerId: string): Promise<void> {
   await api.delete(`/customers/${customerId}`);
 }
+
+export const getWallet = async (
+  customerId: string,
+): Promise<CustomerWallet> => {
+  const res = await api.get(`/wallets/${customerId}`);
+  return res.data;
+};
+
+export const depositMoney = async (
+  customerId: string,
+  amount: number,
+): Promise<CustomerWallet> => {
+  const res = await api.post(`/wallets/${customerId}/deposit`, {
+    amount,
+  });
+
+  return res.data;
+};

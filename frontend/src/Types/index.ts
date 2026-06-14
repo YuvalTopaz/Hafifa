@@ -17,6 +17,11 @@ export type TopBorrowedBook = {
   };
 };
 
+export type CustomerWallet = {
+  customer_id: string;
+  balance: number;
+};
+
 export interface CreateBookDto {
   title: string;
   author_id: string;
@@ -24,9 +29,24 @@ export interface CreateBookDto {
   release_date?: string | null;
 }
 
+export type AuthorPaymentReport = {
+  author_id: string;
+  author_name: string;
+  total_payment: number;
+  books: {
+    book_id: string;
+    title: string;
+    price: number;
+    borrow_count: number;
+    total: number;
+  }[];
+};
+
 export type User = {
   person_id: string;
   email: string;
+  first_name: string;
+  last_name: string;
   isEmployee: boolean;
   isCustomer: boolean;
   isActiveCustomer: boolean;

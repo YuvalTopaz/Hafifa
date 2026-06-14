@@ -6,6 +6,7 @@ import {
   createAuthor,
   getAllAuthors,
   deleteAuthorByEntity,
+  getAuthorPaymentReport,
 } from "../repositories/author.repository";
 
 export const createAuthorService = async (data: any) => {
@@ -78,4 +79,35 @@ export const deleteAuthorService = async (id: string) => {
   }
 
   await deleteAuthorByEntity(author);
+};
+
+export const getAuthorPaymentReportService = async (authorId: string) => {
+  const author = await getAuthorPaymentReport(authorId);
+
+  if (!author) {
+    throw new Error("Author not found");
+  }
+
+  const rawAuthor = author.get({ plain: true }) as any;
+
+  const paidBooks = (rawAuthor.Books || [])
+    .filter((book: any) => book.BookBorrows && book.BookBorrows.length > 0)
+    .map((book: any) => ({
+      book_id: book.book_id,
+      title: book.title,
+      price: Number(book.price),
+      borrow_count: book.BookBorrows.length,
+      total: Number(book.price) * book.BookBorrows.length,
+    }));
+
+  const totalPayment = paidBooks.reduce((sum: number, book: any) => {
+    return sum + book.total;
+  }, 0);
+
+  return {
+    author_id: rawAuthor.author_id,
+    author_name: `${rawAuthor.Person.first_name} ${rawAuthor.Person.last_name}`,
+    total_payment: totalPayment,
+    books: paidBooks,
+  };
 };
