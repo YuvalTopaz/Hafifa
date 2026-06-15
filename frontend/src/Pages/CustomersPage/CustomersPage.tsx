@@ -6,10 +6,13 @@ import {
 } from "../../api/hooks";
 import CustomerCard from "../../components/CustomerCard";
 import CustomerBorrowHistory from "../../components/CustomerBorrowHistory";
+import { SearchBar } from "../../components/SearchBar";
+import { useWalletContext } from "../../context/WalletContext/useWalletContext";
 
 export default function CustomersPage() {
   const { addEmployee, isLoading } = useCreateEmployee();
   const { deposit, isLoading: isDepositLoading } = useWalletActions();
+  const { refreshWallet } = useWalletContext();
 
   const {
     customers,
@@ -22,6 +25,18 @@ export default function CustomersPage() {
   const [selectedCustomerId, setSelectedCustomerId] = useState<string | null>(
     null,
   );
+
+  const [search, setSearch] = useState("");
+
+  const filteredCustomers = customers.filter((customer) => {
+    const fullName = `${customer.first_name} ${customer.last_name}`;
+    const email = customer.email ?? "";
+
+    return (
+      fullName.toLowerCase().includes(search.toLowerCase()) ||
+      email.toLowerCase().includes(search.toLowerCase())
+    );
+  });
 
   const [form, setForm] = useState({
     firstName: "",
@@ -79,6 +94,7 @@ export default function CustomersPage() {
 
     try {
       await deposit(customerId, amount);
+      refreshWallet();
       alert("Money deposited successfully");
     } catch {
       alert("Failed to deposit money");
@@ -107,9 +123,7 @@ export default function CustomersPage() {
             <input
               className="form-control"
               value={form.firstName}
-              onChange={(e) =>
-                setForm({ ...form, firstName: e.target.value })
-              }
+              onChange={(e) => setForm({ ...form, firstName: e.target.value })}
               required
             />
           </div>
@@ -119,9 +133,7 @@ export default function CustomersPage() {
             <input
               className="form-control"
               value={form.lastName}
-              onChange={(e) =>
-                setForm({ ...form, lastName: e.target.value })
-              }
+              onChange={(e) => setForm({ ...form, lastName: e.target.value })}
               required
             />
           </div>
@@ -132,9 +144,7 @@ export default function CustomersPage() {
               type="date"
               className="form-control"
               value={form.birthDate}
-              onChange={(e) =>
-                setForm({ ...form, birthDate: e.target.value })
-              }
+              onChange={(e) => setForm({ ...form, birthDate: e.target.value })}
               required
             />
           </div>
@@ -156,9 +166,7 @@ export default function CustomersPage() {
               type="password"
               className="form-control"
               value={form.password}
-              onChange={(e) =>
-                setForm({ ...form, password: e.target.value })
-              }
+              onChange={(e) => setForm({ ...form, password: e.target.value })}
               required
             />
           </div>
@@ -183,9 +191,13 @@ export default function CustomersPage() {
       <section>
         <h2 className="mb-3">All Customers</h2>
 
-        {isDepositLoading && (
-          <p className="text-muted">Depositing money...</p>
-        )}
+        <SearchBar
+          value={search}
+          onChange={setSearch}
+          placeholder="Search customers..."
+        />
+
+        {isDepositLoading && <p className="text-muted">Depositing money...</p>}
 
         {isCustomersLoading && <p>Loading customers...</p>}
 
@@ -193,9 +205,11 @@ export default function CustomersPage() {
 
         {!isCustomersLoading && customers.length === 0 ? (
           <p className="text-muted">No customers found.</p>
+        ) : filteredCustomers.length === 0 ? (
+          <p className="text-muted">No customers match your search.</p>
         ) : (
           <div className="row g-3">
-            {customers.map((customer) => (
+            {filteredCustomers.map((customer) => (
               <div
                 key={customer.customer_id}
                 className="col-12 col-md-6 col-lg-4"

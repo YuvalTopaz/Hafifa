@@ -2,11 +2,16 @@ import { useState } from "react";
 import { useAuthors, useAuthorPaymentReport } from "../../api/hooks";
 import { AuthorCard } from "../../components/AuthorCard";
 import { AuthorPaymentReportModal } from "../../components/AuthorPaymentReportModal";
+import { SearchBar } from "../../components/SearchBar";
 
 export default function PublishersPage() {
   const { authors, isLoading, error, addAuthor, removeAuthor } = useAuthors();
-  const { report, isLoading: isReportLoading, loadReport, clearReport } =
-    useAuthorPaymentReport();
+  const {
+    report,
+    isLoading: isReportLoading,
+    loadReport,
+    clearReport,
+  } = useAuthorPaymentReport();
 
   const [showModal, setShowModal] = useState(false);
 
@@ -15,6 +20,14 @@ export default function PublishersPage() {
   const [birthDate, setBirthDate] = useState("");
 
   const [isSubmitting, setIsSubmitting] = useState(false);
+
+  const [search, setSearch] = useState("");
+
+  const filteredAuthors = authors.filter((author) => {
+    const fullName = `${author.first_name} ${author.last_name}`;
+
+    return fullName.toLowerCase().includes(search.toLowerCase());
+  });
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -72,16 +85,20 @@ export default function PublishersPage() {
       {!isLoading && authors.length === 0 ? (
         <p className="text-muted">No authors found.</p>
       ) : (
-        <div className="row g-3">
-          {authors.map((author) => (
-            <AuthorCard
-              key={author.author_id}
-              author={author}
-              onDelete={handleDelete}
-              onReport={handleReport}
-            />
-          ))}
-        </div>
+        <>
+          <SearchBar value={search} onChange={setSearch} />
+
+          <div className="row g-3">
+            {filteredAuthors.map((author) => (
+              <AuthorCard
+                key={author.author_id}
+                author={author}
+                onDelete={handleDelete}
+                onReport={handleReport}
+              />
+            ))}
+          </div>
+        </>
       )}
 
       {showModal && (

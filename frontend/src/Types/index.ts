@@ -2,7 +2,7 @@ export interface Book {
   book_id: string;
   title: string;
   price: number;
-  authorId: number;
+  authorId: string;
   is_borrowed: boolean;
   is_active: boolean;
 }
