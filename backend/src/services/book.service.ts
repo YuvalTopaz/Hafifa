@@ -48,6 +48,20 @@ export class BookService {
   }
 
   async getTopBorrowedBooks() {
-    return bookRepository.getTopBorrowedBooks();
+    const topBooks = await bookRepository.getTopBorrowedBooks();
+
+    return topBooks.map((row: any) => {
+      const plain = row.get({ plain: true });
+
+      return {
+        book_id: plain.book_id,
+        borrow_count: Number(plain.borrow_count),
+        Book: {
+          book_id: plain.Book.book_id,
+          title: plain.Book.title,
+          price: Number(plain.Book.price),
+        },
+      };
+    });
   }
 }

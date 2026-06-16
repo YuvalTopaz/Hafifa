@@ -5,15 +5,12 @@ import App from "./App.tsx";
 import "bootstrap/dist/css/bootstrap.min.css";
 import "bootstrap/dist/js/bootstrap.bundle.min.js";
 import "bootstrap-icons/font/bootstrap-icons.css";
-import { AuthProvider } from "./context/AuthContext/AuthProvider.tsx";
-import { WalletProvider } from "./context/WalletContext/WalletProvider.tsx";
+import { AppProviders } from "./AppProviders.tsx";
 
 createRoot(document.getElementById("root")!).render(
   <StrictMode>
-    <AuthProvider>
-      <WalletProvider>
-        <App />
-      </WalletProvider>
-    </AuthProvider>
+    <AppProviders>
+      <App />
+    </AppProviders>
   </StrictMode>,
 );

@@ -2,7 +2,7 @@ import type { BorrowedBook } from "../../Types";
 
 type BorrowedBookCardProps = {
   borrow: BorrowedBook;
-  onReturn: (borrowId: string) => void;
+  onReturn: (borrowId: number) => void;
 };
 
 export default function BorrowedBookCard({

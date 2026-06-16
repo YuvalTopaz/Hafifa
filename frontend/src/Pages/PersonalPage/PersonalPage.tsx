@@ -1,26 +1,22 @@
 import BorrowedBookCard from "../../components/BorrowedBookCard";
-import { useCustomerBorrowHistory, useMyBorrows } from "../../api/hooks";
-import { useAuth } from "../../context/AuthContext/useAuth";
+import { useLibraryDataContext } from "../../context/LibraryDataContext/useLibraryDataContext";
 
 export default function PersonalPage() {
-  const { user } = useAuth();
-
   const {
-    borrows: activeBorrows,
+    myBorrows,
+    myBorrowHistory,
     isLoading,
     error,
-    returnBorrow,
-  } = useMyBorrows(user?.person_id);
+    returnBorrowById,
+  } = useLibraryDataContext();
 
-  const { borrows: borrowHistory } = useCustomerBorrowHistory(user?.person_id);
-
-  const totalSpent = borrowHistory.reduce((total, borrow) => {
+  const totalSpent = myBorrowHistory.reduce((total, borrow) => {
     return total + Number(borrow.Book?.price ?? 0);
   }, 0);
 
-  async function handleReturn(borrowId: string) {
+  async function handleReturn(borrowId: number, bookId: string) {
     try {
-      await returnBorrow(borrowId);
+      await returnBorrowById(borrowId, bookId);
     } catch {
       alert("Failed to return book");
     }
@@ -38,13 +34,16 @@ export default function PersonalPage() {
 
       {error && <p className="text-danger">{error}</p>}
 
-      {!isLoading && activeBorrows.length === 0 ? (
+      {!isLoading && myBorrows.length === 0 ? (
         <p className="text-muted">You have no borrowed books.</p>
       ) : (
         <div className="row g-3">
-          {activeBorrows.map((borrow) => (
+          {myBorrows.map((borrow) => (
             <div key={borrow.borrow_id} className="col-12 col-md-6 col-lg-4">
-              <BorrowedBookCard borrow={borrow} onReturn={handleReturn} />
+              <BorrowedBookCard
+                borrow={borrow}
+                onReturn={() => handleReturn(borrow.borrow_id, borrow.book_id)}
+              />
             </div>
           ))}
         </div>

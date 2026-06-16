@@ -272,7 +272,7 @@ export function useMyBorrows(customerId: string | undefined) {
     };
   }, [customerId]);
 
-  async function returnBorrow(borrowId: string) {
+  async function returnBorrow(borrowId: number) {
     await returnBook(borrowId);
     await refreshBorrows();
   }

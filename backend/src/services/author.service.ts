@@ -23,13 +23,13 @@ export const createAuthorService = async (data: any) => {
       first_name,
       last_name,
       birth_date,
-      transaction
+      transaction,
     );
 
     if (person) {
       const existingAuthor = await findAuthorById(
         person.get("person_id") as string,
-        transaction
+        transaction,
       );
 
       if (existingAuthor) {
@@ -42,18 +42,23 @@ export const createAuthorService = async (data: any) => {
           last_name,
           birth_date,
         },
-        transaction
+        transaction,
       );
     }
 
     const author = await createAuthor(
       person.get("person_id") as string,
-      transaction
+      transaction,
     );
 
     await transaction.commit();
 
-    return author;
+    return {
+      author_id: author.author_id,
+      first_name,
+      last_name,
+      birth_date,
+    };
   } catch (error) {
     await transaction.rollback();
     throw error;

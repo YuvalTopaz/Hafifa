@@ -1,31 +1,33 @@
 import { useState } from "react";
-import { useAuthors, useAuthorPaymentReport } from "../../api/hooks";
+import type { AuthorPaymentReport } from "../../Types";
 import { AuthorCard } from "../../components/AuthorCard";
 import { AuthorPaymentReportModal } from "../../components/AuthorPaymentReportModal";
 import { SearchBar } from "../../components/SearchBar";
+import { useLibraryDataContext } from "../../context/LibraryDataContext/useLibraryDataContext";
 
 export default function PublishersPage() {
-  const { authors, isLoading, error, addAuthor, removeAuthor } = useAuthors();
   const {
-    report,
-    isLoading: isReportLoading,
-    loadReport,
-    clearReport,
-  } = useAuthorPaymentReport();
+    authors,
+    isLoading,
+    error,
+    addAuthor,
+    removeAuthor,
+    loadAuthorPaymentReport,
+  } = useLibraryDataContext();
 
   const [showModal, setShowModal] = useState(false);
+  const [report, setReport] = useState<AuthorPaymentReport | null>(null);
+  const [isReportLoading, setIsReportLoading] = useState(false);
 
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
   const [birthDate, setBirthDate] = useState("");
 
   const [isSubmitting, setIsSubmitting] = useState(false);
-
   const [search, setSearch] = useState("");
 
   const filteredAuthors = authors.filter((author) => {
     const fullName = `${author.first_name} ${author.last_name}`;
-
     return fullName.toLowerCase().includes(search.toLowerCase());
   });
 
@@ -62,10 +64,19 @@ export default function PublishersPage() {
 
   async function handleReport(authorId: string) {
     try {
-      await loadReport(authorId);
+      setIsReportLoading(true);
+
+      const loadedReport = await loadAuthorPaymentReport(authorId);
+      setReport(loadedReport);
     } catch {
       alert("Failed to load payment report");
+    } finally {
+      setIsReportLoading(false);
     }
+  }
+
+  function handleCloseReport() {
+    setReport(null);
   }
 
   return (
@@ -173,7 +184,7 @@ export default function PublishersPage() {
         <AuthorPaymentReportModal
           report={report}
           isLoading={isReportLoading}
-          onClose={clearReport}
+          onClose={handleCloseReport}
         />
       )}
     </main>

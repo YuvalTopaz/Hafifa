@@ -2,14 +2,15 @@ export interface Book {
   book_id: string;
   title: string;
   price: number;
-  authorId: string;
+  author_id: string;
   is_borrowed: boolean;
   is_active: boolean;
+  release_date?: string | null;
 }
 
 export type TopBorrowedBook = {
   book_id: string;
-  borrow_count: string;
+  borrow_count: number;
   Book: {
     book_id: string;
     title: string;
@@ -79,7 +80,7 @@ export interface CreateEmployeeDto {
 }
 
 export type BorrowedBook = {
-  borrow_id: string;
+  borrow_id: number;
   borrower_id: string;
   book_id: string;
   borrow_date: string;
@@ -103,6 +104,8 @@ export type Author = {
   first_name: string;
   last_name: string;
   birth_date: string;
+
+  paymentReport?: AuthorPaymentReport;
 };
 
 export type Customer = {
@@ -112,4 +115,6 @@ export type Customer = {
   birth_date?: string;
   email?: string;
   is_active?: boolean;
+
+  borrowHistory?: BorrowedBook[];
 };

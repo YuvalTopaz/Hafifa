@@ -1,42 +1,27 @@
 import { useState } from "react";
-import {
-  useCreateEmployee,
-  useCustomers,
-  useWalletActions,
-} from "../../api/hooks";
+import { useCreateEmployee } from "../../api/hooks";
 import CustomerCard from "../../components/CustomerCard";
 import CustomerBorrowHistory from "../../components/CustomerBorrowHistory";
 import { SearchBar } from "../../components/SearchBar";
-import { useWalletContext } from "../../context/WalletContext/useWalletContext";
+import { useLibraryDataContext } from "../../context/LibraryDataContext/useLibraryDataContext";
 
 export default function CustomersPage() {
   const { addEmployee, isLoading } = useCreateEmployee();
-  const { deposit, isLoading: isDepositLoading } = useWalletActions();
-  const { refreshWallet } = useWalletContext();
 
   const {
     customers,
     isLoading: isCustomersLoading,
     error,
     removeCustomer,
-  } = useCustomers();
+    depositToCustomerWallet,
+  } = useLibraryDataContext();
 
+  const [isDepositLoading, setIsDepositLoading] = useState(false);
   const [showForm, setShowForm] = useState(false);
   const [selectedCustomerId, setSelectedCustomerId] = useState<string | null>(
     null,
   );
-
   const [search, setSearch] = useState("");
-
-  const filteredCustomers = customers.filter((customer) => {
-    const fullName = `${customer.first_name} ${customer.last_name}`;
-    const email = customer.email ?? "";
-
-    return (
-      fullName.toLowerCase().includes(search.toLowerCase()) ||
-      email.toLowerCase().includes(search.toLowerCase())
-    );
-  });
 
   const [form, setForm] = useState({
     firstName: "",
@@ -44,6 +29,16 @@ export default function CustomersPage() {
     birthDate: "",
     email: "",
     password: "",
+  });
+
+  const filteredCustomers = customers.filter((customer) => {
+    const fullName = `${customer.first_name ?? ""} ${customer.last_name ?? ""}`;
+    const email = customer.email ?? "";
+
+    return (
+      fullName.toLowerCase().includes(search.toLowerCase()) ||
+      email.toLowerCase().includes(search.toLowerCase())
+    );
   });
 
   async function handleSubmit(e: React.FormEvent) {
@@ -93,11 +88,13 @@ export default function CustomersPage() {
     }
 
     try {
-      await deposit(customerId, amount);
-      refreshWallet();
+      setIsDepositLoading(true);
+      await depositToCustomerWallet(customerId, amount);
       alert("Money deposited successfully");
     } catch {
       alert("Failed to deposit money");
+    } finally {
+      setIsDepositLoading(false);
     }
   }
 

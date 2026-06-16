@@ -1,5 +1,17 @@
 import axios from "axios";
-import type { Book, BorrowedBook, CreateEmployeeDto, Customer, CustomerWallet, CreateBookDto, CreateCustomerDto, Author, CreateAuthorDto, TopBorrowedBook, AuthorPaymentReport } from "../Types";
+import type {
+  Book,
+  BorrowedBook,
+  CreateEmployeeDto,
+  Customer,
+  CustomerWallet,
+  CreateBookDto,
+  CreateCustomerDto,
+  Author,
+  CreateAuthorDto,
+  TopBorrowedBook,
+  AuthorPaymentReport,
+} from "../Types";
 
 const api = axios.create({
   baseURL: import.meta.env.VITE_API_URL,
@@ -49,8 +61,11 @@ export const createEmployee = async (employee: CreateEmployeeDto) => {
   return response.data;
 };
 
-export const borrowBook = async (bookId: string, customerId: string) => {
-  const response = await api.post(`/books/${bookId}/borrow`, {
+export const borrowBook = async (
+  bookId: string,
+  customerId: string,
+): Promise<BorrowedBook> => {
+  const response = await api.post<BorrowedBook>(`/books/${bookId}/borrow`, {
     customerId,
   });
 
@@ -77,8 +92,10 @@ export const getCustomerBorrowHistory = async (
   return response.data;
 };
 
-export const returnBook = async (borrowId: string): Promise<void> => {
-  await api.patch(`/borrows/${borrowId}/return`);
+export const returnBook = async (borrowId: number): Promise<BorrowedBook> => {
+  const response = await api.patch<BorrowedBook>(`/borrows/${borrowId}/return`);
+
+  return response.data;
 };
 
 export const createAuthor = async (
@@ -95,7 +112,7 @@ export const getAuthors = async (): Promise<Author[]> => {
 
 export async function getAuthorPaymentReport(authorId: string) {
   const response = await api.get<AuthorPaymentReport>(
-    `/authors/${authorId}/payment-report`
+    `/authors/${authorId}/payment-report`,
   );
 
   return response.data;

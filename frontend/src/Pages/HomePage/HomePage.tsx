@@ -1,22 +1,27 @@
+import { useState } from "react";
 import CatalogHeader from "../../components/CatalogHeader";
-import {
-  useAuthors,
-  useBooks,
-  useBorrowBook,
-  useTopBorrowedBooks,
-} from "../../api/hooks";
 import BookCard from "../../components/BookCard";
 import TopBorrowedBooksPanel from "../../components/TopBorrowedBooksPanel";
+import { SearchBar } from "../../components/SearchBar";
 import type { Book } from "../../Types";
 import { useAuth } from "../../context/AuthContext/useAuth";
-import { useWalletContext } from "../../context/WalletContext/useWalletContext";
+import { useLibraryDataContext } from "../../context/LibraryDataContext/useLibraryDataContext";
 import "./HomePage.css";
-import { useState } from "react";
-import { SearchBar } from "../../components/SearchBar";
 
 export default function HomePage() {
-  const { books, isLoading, error, refreshBooks, removeBook, addBook } =
-    useBooks();
+  const { isEmployee, isCustomer, user } = useAuth();
+
+  const {
+    books,
+    authors,
+    topBooks,
+    wallet,
+    isLoading,
+    error,
+    addBook,
+    removeBook,
+    borrowBookById,
+  } = useLibraryDataContext();
 
   const [search, setSearch] = useState("");
   const [sortByPrice, setSortByPrice] = useState<"none" | "asc" | "desc">(
@@ -31,43 +36,21 @@ export default function HomePage() {
       book.title.toLowerCase().includes(search.toLowerCase()),
     )
     .filter((book) => {
-      if (availabilityFilter === "available") {
-        return !book.is_borrowed;
-      }
-
-      if (availabilityFilter === "borrowed") {
-        return book.is_borrowed;
-      }
-
+      if (availabilityFilter === "available") return !book.is_borrowed;
+      if (availabilityFilter === "borrowed") return book.is_borrowed;
       return true;
     })
     .sort((a, b) => {
-      if (sortByPrice === "asc") {
-        return Number(a.price) - Number(b.price);
-      }
-
-      if (sortByPrice === "desc") {
-        return Number(b.price) - Number(a.price);
-      }
-
+      if (sortByPrice === "asc") return Number(a.price) - Number(b.price);
+      if (sortByPrice === "desc") return Number(b.price) - Number(a.price);
       return 0;
     });
-
-  const { books: topBooks, refreshTopBooks } = useTopBorrowedBooks();
-
-  const { authors } = useAuthors();
-  const { borrow } = useBorrowBook();
-  const { isEmployee, isCustomer, user } = useAuth();
-  const { wallet, refreshWallet } = useWalletContext();
 
   async function handleBorrow(bookId: string) {
     if (!user) return;
 
     try {
-      await borrow(bookId, user.person_id);
-      await refreshBooks();
-      await refreshTopBooks();
-      await refreshWallet();
+      await borrowBookById(bookId, user.person_id);
     } catch {
       alert("Failed to borrow book");
     }
@@ -76,8 +59,6 @@ export default function HomePage() {
   async function handleDelete(bookId: string) {
     try {
       await removeBook(bookId);
-      await refreshBooks();
-      await refreshTopBooks();
     } catch {
       alert("Failed to delete book");
     }
@@ -126,7 +107,8 @@ export default function HomePage() {
 
         <div className={isEmployee ? "home-with-sidebar" : ""}>
           <div>
-            {isLoading ? "Loading..." : error ? <div>{error}</div> : null}
+            {isLoading && <p>Loading...</p>}
+            {error && <p className="text-danger">{error}</p>}
 
             <div className="row justify-content-start g-3">
               {filteredBooks.map((book: Book) => (

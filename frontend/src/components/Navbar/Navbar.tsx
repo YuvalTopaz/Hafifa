@@ -1,13 +1,13 @@
 import { NavLink, useNavigate } from "react-router-dom";
 import "./Navbar.css";
 import { useAuth } from "../../context/AuthContext/useAuth";
-import { useWalletContext } from "../../context/WalletContext/useWalletContext";
+import { useLibraryDataContext } from "../../context/LibraryDataContext/useLibraryDataContext";
 
 export default function Navbar() {
   const navigate = useNavigate();
 
   const { user, isEmployee, isCustomer, logout } = useAuth();
-  const { wallet } = useWalletContext();
+  const { wallet } = useLibraryDataContext();
 
   return (
     <nav
