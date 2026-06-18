@@ -1,4 +1,6 @@
-import { useCustomerBorrowHistory } from "../../api/hooks";
+import { useEffect, useState } from "react";
+import type { BorrowedBook } from "../../Types";
+import { useLibraryDataContext } from "../../context/LibraryDataContext/useLibraryDataContext";
 
 type Props = {
   customerId: string;
@@ -6,7 +8,42 @@ type Props = {
 };
 
 export default function CustomerBorrowHistory({ customerId, onClose }: Props) {
-  const { borrows, isLoading, error } = useCustomerBorrowHistory(customerId);
+  const { loadCustomerBorrowHistory } = useLibraryDataContext();
+
+  const [borrows, setBorrows] = useState<BorrowedBook[]>([]);
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    let ignore = false;
+
+    async function loadHistory() {
+      try {
+        setIsLoading(true);
+        setError(null);
+
+        const data = await loadCustomerBorrowHistory(customerId);
+
+        if (!ignore) {
+          setBorrows(data);
+        }
+      } catch {
+        if (!ignore) {
+          setError("Failed to load borrowing history");
+        }
+      } finally {
+        if (!ignore) {
+          setIsLoading(false);
+        }
+      }
+    }
+
+    void loadHistory();
+
+    return () => {
+      ignore = true;
+    };
+  }, [customerId, loadCustomerBorrowHistory]);
 
   return (
     <div className="card shadow-sm p-4 mb-4">

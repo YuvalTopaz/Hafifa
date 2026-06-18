@@ -1,3 +1,4 @@
+import { useState } from "react";
 import type { Author, CreateBookDto } from "../../Types";
 import AddBookModal from "../AddBookModal";
 
@@ -6,10 +7,9 @@ type Props = {
   onAddBook: (book: CreateBookDto) => Promise<unknown>;
 };
 
-export default function CatalogHeader({
-  authors,
-  onAddBook,
-}: Props) {
+export default function CatalogHeader({ authors, onAddBook }: Props) {
+  const [isAddBookModalOpen, setIsAddBookModalOpen] = useState(false);
+
   return (
     <>
       <div className="card shadow-sm p-4 mb-4">
@@ -23,9 +23,9 @@ export default function CatalogHeader({
           </div>
 
           <button
+            type="button"
             className="btn btn-primary"
-            data-bs-toggle="modal"
-            data-bs-target="#addBookModal"
+            onClick={() => setIsAddBookModalOpen(true)}
           >
             Add Book
           </button>
@@ -33,6 +33,8 @@ export default function CatalogHeader({
       </div>
 
       <AddBookModal
+        isOpen={isAddBookModalOpen}
+        onClose={() => setIsAddBookModalOpen(false)}
         authors={authors}
         onAddBook={onAddBook}
       />

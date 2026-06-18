@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useCreateEmployee } from "../../api/hooks";
-import CustomerCard from "../../components/CustomerCard";
 import CustomerBorrowHistory from "../../components/CustomerBorrowHistory";
+import EntityCard from "../../components/EntityCard";
 import { SearchBar } from "../../components/SearchBar";
 import { useLibraryDataContext } from "../../context/LibraryDataContext/useLibraryDataContext";
 
@@ -115,58 +115,47 @@ export default function CustomersPage() {
         <form onSubmit={handleSubmit} className="card p-4 shadow-sm mb-4">
           <h2 className="mb-4">Create Employee</h2>
 
-          <div className="mb-3">
-            <label className="form-label">First Name</label>
-            <input
-              className="form-control"
-              value={form.firstName}
-              onChange={(e) => setForm({ ...form, firstName: e.target.value })}
-              required
-            />
-          </div>
+          <input
+            className="form-control mb-3"
+            placeholder="First Name"
+            value={form.firstName}
+            onChange={(e) => setForm({ ...form, firstName: e.target.value })}
+            required
+          />
 
-          <div className="mb-3">
-            <label className="form-label">Last Name</label>
-            <input
-              className="form-control"
-              value={form.lastName}
-              onChange={(e) => setForm({ ...form, lastName: e.target.value })}
-              required
-            />
-          </div>
+          <input
+            className="form-control mb-3"
+            placeholder="Last Name"
+            value={form.lastName}
+            onChange={(e) => setForm({ ...form, lastName: e.target.value })}
+            required
+          />
 
-          <div className="mb-3">
-            <label className="form-label">Birth Date</label>
-            <input
-              type="date"
-              className="form-control"
-              value={form.birthDate}
-              onChange={(e) => setForm({ ...form, birthDate: e.target.value })}
-              required
-            />
-          </div>
+          <input
+            type="date"
+            className="form-control mb-3"
+            value={form.birthDate}
+            onChange={(e) => setForm({ ...form, birthDate: e.target.value })}
+            required
+          />
 
-          <div className="mb-3">
-            <label className="form-label">Email</label>
-            <input
-              type="email"
-              className="form-control"
-              value={form.email}
-              onChange={(e) => setForm({ ...form, email: e.target.value })}
-              required
-            />
-          </div>
+          <input
+            type="email"
+            className="form-control mb-3"
+            placeholder="Email"
+            value={form.email}
+            onChange={(e) => setForm({ ...form, email: e.target.value })}
+            required
+          />
 
-          <div className="mb-4">
-            <label className="form-label">Password</label>
-            <input
-              type="password"
-              className="form-control"
-              value={form.password}
-              onChange={(e) => setForm({ ...form, password: e.target.value })}
-              required
-            />
-          </div>
+          <input
+            type="password"
+            className="form-control mb-4"
+            placeholder="Password"
+            value={form.password}
+            onChange={(e) => setForm({ ...form, password: e.target.value })}
+            required
+          />
 
           <button
             type="submit"
@@ -195,9 +184,7 @@ export default function CustomersPage() {
         />
 
         {isDepositLoading && <p className="text-muted">Depositing money...</p>}
-
         {isCustomersLoading && <p>Loading customers...</p>}
-
         {error && <p className="text-danger">{error}</p>}
 
         {!isCustomersLoading && customers.length === 0 ? (
@@ -211,12 +198,45 @@ export default function CustomersPage() {
                 key={customer.customer_id}
                 className="col-12 col-md-6 col-lg-4"
               >
-                <CustomerCard
-                  customer={customer}
-                  onDelete={handleDelete}
-                  onViewHistory={setSelectedCustomerId}
-                  onDeposit={handleDeposit}
-                />
+                <EntityCard
+                  title={`${customer.first_name ?? "Unknown"} ${
+                    customer.last_name ?? ""
+                  }`}
+                  actions={
+                    <>
+                      <button
+                        className="btn btn-outline-primary"
+                        onClick={() =>
+                          setSelectedCustomerId(customer.customer_id)
+                        }
+                      >
+                        View History
+                      </button>
+
+                      <button
+                        className="btn btn-outline-success"
+                        onClick={() => handleDeposit(customer.customer_id)}
+                      >
+                        Deposit
+                      </button>
+
+                      <button
+                        className="btn btn-outline-danger"
+                        onClick={() => handleDelete(customer.customer_id)}
+                      >
+                        Delete
+                      </button>
+                    </>
+                  }
+                >
+                  <p className="text-muted mb-1">
+                    Birth date: {customer.birth_date ?? "Unknown"}
+                  </p>
+
+                  <p className="text-muted mb-0">
+                    Email: {customer.email ?? "Unknown"}
+                  </p>
+                </EntityCard>
               </div>
             ))}
           </div>

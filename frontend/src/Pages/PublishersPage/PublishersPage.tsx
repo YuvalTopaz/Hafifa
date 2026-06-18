@@ -1,7 +1,7 @@
 import { useState } from "react";
 import type { AuthorPaymentReport } from "../../Types";
-import { AuthorCard } from "../../components/AuthorCard";
 import { AuthorPaymentReportModal } from "../../components/AuthorPaymentReportModal";
+import EntityCard from "../../components/EntityCard";
 import { SearchBar } from "../../components/SearchBar";
 import { useLibraryDataContext } from "../../context/LibraryDataContext/useLibraryDataContext";
 
@@ -75,10 +75,6 @@ export default function PublishersPage() {
     }
   }
 
-  function handleCloseReport() {
-    setReport(null);
-  }
-
   return (
     <main className="container py-4">
       <div className="d-flex justify-content-between align-items-center mb-4">
@@ -90,25 +86,55 @@ export default function PublishersPage() {
       </div>
 
       {isLoading && <p>Loading...</p>}
-
       {error && <p className="text-danger">{error}</p>}
 
       {!isLoading && authors.length === 0 ? (
         <p className="text-muted">No authors found.</p>
       ) : (
         <>
-          <SearchBar value={search} onChange={setSearch} />
+          <SearchBar
+            value={search}
+            onChange={setSearch}
+            placeholder="Search authors..."
+          />
 
-          <div className="row g-3">
-            {filteredAuthors.map((author) => (
-              <AuthorCard
-                key={author.author_id}
-                author={author}
-                onDelete={handleDelete}
-                onReport={handleReport}
-              />
-            ))}
-          </div>
+          {filteredAuthors.length === 0 ? (
+            <p className="text-muted">No authors match your search.</p>
+          ) : (
+            <div className="row g-3">
+              {filteredAuthors.map((author) => (
+                <div
+                  key={author.author_id}
+                  className="col-12 col-md-6 col-lg-4"
+                >
+                  <EntityCard
+                    title={`${author.first_name} ${author.last_name}`}
+                    actions={
+                      <>
+                        <button
+                          className="btn btn-outline-primary"
+                          onClick={() => handleReport(author.author_id)}
+                        >
+                          Payment Report
+                        </button>
+
+                        <button
+                          className="btn btn-outline-danger"
+                          onClick={() => handleDelete(author.author_id)}
+                        >
+                          Delete Author
+                        </button>
+                      </>
+                    }
+                  >
+                    <p className="text-muted mb-0">
+                      Birth date: {author.birth_date}
+                    </p>
+                  </EntityCard>
+                </div>
+              ))}
+            </div>
+          )}
         </>
       )}
 
@@ -184,7 +210,7 @@ export default function PublishersPage() {
         <AuthorPaymentReportModal
           report={report}
           isLoading={isReportLoading}
-          onClose={handleCloseReport}
+          onClose={() => setReport(null)}
         />
       )}
     </main>
