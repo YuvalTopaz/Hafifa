@@ -31,6 +31,33 @@ export default function CustomersPage() {
     password: "",
   });
 
+  type FormField = keyof typeof form;
+
+  function handleFormChange(field: FormField, value: string) {
+    setForm((prev) => ({
+      ...prev,
+      [field]: value,
+    }));
+  }
+
+  function renderInput(
+    field: FormField,
+    placeholder: string,
+    type = "text",
+    className = "form-control mb-3",
+  ) {
+    return (
+      <input
+        type={type}
+        className={className}
+        placeholder={placeholder}
+        value={form[field]}
+        onChange={(e) => handleFormChange(field, e.target.value)}
+        required
+      />
+    );
+  }
+
   const filteredCustomers = customers.filter((customer) => {
     const fullName = `${customer.first_name ?? ""} ${customer.last_name ?? ""}`;
     const email = customer.email ?? "";
@@ -115,47 +142,16 @@ export default function CustomersPage() {
         <form onSubmit={handleSubmit} className="card p-4 shadow-sm mb-4">
           <h2 className="mb-4">Create Employee</h2>
 
-          <input
-            className="form-control mb-3"
-            placeholder="First Name"
-            value={form.firstName}
-            onChange={(e) => setForm({ ...form, firstName: e.target.value })}
-            required
-          />
-
-          <input
-            className="form-control mb-3"
-            placeholder="Last Name"
-            value={form.lastName}
-            onChange={(e) => setForm({ ...form, lastName: e.target.value })}
-            required
-          />
-
-          <input
-            type="date"
-            className="form-control mb-3"
-            value={form.birthDate}
-            onChange={(e) => setForm({ ...form, birthDate: e.target.value })}
-            required
-          />
-
-          <input
-            type="email"
-            className="form-control mb-3"
-            placeholder="Email"
-            value={form.email}
-            onChange={(e) => setForm({ ...form, email: e.target.value })}
-            required
-          />
-
-          <input
-            type="password"
-            className="form-control mb-4"
-            placeholder="Password"
-            value={form.password}
-            onChange={(e) => setForm({ ...form, password: e.target.value })}
-            required
-          />
+          {renderInput("firstName", "First Name")}
+          {renderInput("lastName", "Last Name")}
+          {renderInput("birthDate", "", "date")}
+          {renderInput("email", "Email", "email")}
+          {renderInput(
+            "password",
+            "Password",
+            "password",
+            "form-control mb-4",
+          )}
 
           <button
             type="submit"
