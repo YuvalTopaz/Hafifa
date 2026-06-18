@@ -18,13 +18,41 @@ export default function PublishersPage() {
   const [showModal, setShowModal] = useState(false);
   const [report, setReport] = useState<AuthorPaymentReport | null>(null);
   const [isReportLoading, setIsReportLoading] = useState(false);
-
-  const [firstName, setFirstName] = useState("");
-  const [lastName, setLastName] = useState("");
-  const [birthDate, setBirthDate] = useState("");
-
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [search, setSearch] = useState("");
+
+  const [form, setForm] = useState({
+    firstName: "",
+    lastName: "",
+    birthDate: "",
+  });
+
+  type FormField = keyof typeof form;
+
+  function handleFormChange(field: FormField, value: string) {
+    setForm((prev) => ({
+      ...prev,
+      [field]: value,
+    }));
+  }
+
+  function renderInput(
+    field: FormField,
+    placeholder: string,
+    type = "text",
+    className = "form-control mb-3",
+  ) {
+    return (
+      <input
+        type={type}
+        className={className}
+        placeholder={placeholder}
+        value={form[field]}
+        onChange={(e) => handleFormChange(field, e.target.value)}
+        required
+      />
+    );
+  }
 
   const filteredAuthors = authors.filter((author) => {
     const fullName = `${author.first_name} ${author.last_name}`;
@@ -38,15 +66,18 @@ export default function PublishersPage() {
       setIsSubmitting(true);
 
       await addAuthor({
-        first_name: firstName,
-        last_name: lastName,
-        birth_date: birthDate,
+        first_name: form.firstName,
+        last_name: form.lastName,
+        birth_date: form.birthDate,
       });
 
       setShowModal(false);
-      setFirstName("");
-      setLastName("");
-      setBirthDate("");
+
+      setForm({
+        firstName: "",
+        lastName: "",
+        birthDate: "",
+      });
     } catch {
       alert("Failed to create author");
     } finally {
@@ -155,29 +186,14 @@ export default function PublishersPage() {
                   </div>
 
                   <div className="modal-body">
-                    <input
-                      className="form-control mb-3"
-                      placeholder="First Name"
-                      value={firstName}
-                      onChange={(e) => setFirstName(e.target.value)}
-                      required
-                    />
-
-                    <input
-                      className="form-control mb-3"
-                      placeholder="Last Name"
-                      value={lastName}
-                      onChange={(e) => setLastName(e.target.value)}
-                      required
-                    />
-
-                    <input
-                      className="form-control"
-                      type="date"
-                      value={birthDate}
-                      onChange={(e) => setBirthDate(e.target.value)}
-                      required
-                    />
+                    {renderInput("firstName", "First Name")}
+                    {renderInput("lastName", "Last Name")}
+                    {renderInput(
+                      "birthDate",
+                      "",
+                      "date",
+                      "form-control",
+                    )}
                   </div>
 
                   <div className="modal-footer">

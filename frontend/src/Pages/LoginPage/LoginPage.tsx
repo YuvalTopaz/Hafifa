@@ -1,21 +1,57 @@
 import { useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
 import { useLogin } from "../../api/hooks";
-import { useNavigate } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext/useAuth";
-import { Link } from "react-router-dom";
 
 export default function LoginPage() {
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
   const { loginUser } = useLogin();
   const navigate = useNavigate();
   const { login } = useAuth();
+
+  const [form, setForm] = useState({
+    email: "",
+    password: "",
+  });
+
+  type FormField = keyof typeof form;
+
+  function handleFormChange(field: FormField, value: string) {
+    setForm((prev) => ({
+      ...prev,
+      [field]: value,
+    }));
+  }
+
+  function renderInput(
+    field: FormField,
+    label: string,
+    type = "text",
+    placeholder = "",
+  ) {
+    return (
+      <div className={field === "password" ? "mb-4" : "mb-3"}>
+        <label htmlFor={field} className="form-label">
+          {label}
+        </label>
+
+        <input
+          id={field}
+          type={type}
+          className="form-control"
+          placeholder={placeholder}
+          value={form[field]}
+          onChange={(e) => handleFormChange(field, e.target.value)}
+          required
+        />
+      </div>
+    );
+  }
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
 
     try {
-      const result = await loginUser(email, password);
+      const result = await loginUser(form.email, form.password);
 
       login(result.token, result.user);
 
@@ -34,37 +70,13 @@ export default function LoginPage() {
         <h1 className="text-center mb-4">Login</h1>
 
         <form onSubmit={handleSubmit}>
-          <div className="mb-3">
-            <label htmlFor="email" className="form-label">
-              Email
-            </label>
-
-            <input
-              id="email"
-              type="email"
-              className="form-control"
-              placeholder="Enter your email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              required
-            />
-          </div>
-
-          <div className="mb-4">
-            <label htmlFor="password" className="form-label">
-              Password
-            </label>
-
-            <input
-              id="password"
-              type="password"
-              className="form-control"
-              placeholder="Enter your password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              required
-            />
-          </div>
+          {renderInput("email", "Email", "email", "Enter your email")}
+          {renderInput(
+            "password",
+            "Password",
+            "password",
+            "Enter your password",
+          )}
 
           <button type="submit" className="btn btn-primary w-100">
             Login
